@@ -1,0 +1,10 @@
+discord game idea
+	- use md5 key to save game state
+		-keep track of items and location
+		-game start ask for key or ask to start new
+	
+	-generate images for towns and shit
+	
+	-maybe need an sql server to store all of the info
+		-allows better logging and keeping track of stuff
+
