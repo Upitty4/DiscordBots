@@ -1,16 +1,16 @@
 import discord
-import os
 
 # basic info to run discord app
 from dotenv import load_dotenv
 
 load_dotenv()
-TOKEN = os.getenv('DarkCord_Token')
+TOKEN = ''
 
 client = discord.Client()
 
 # this holds all of the info running the class and functions
-npc = []
+npc_info = []
+npc_list = []
 
 
 # enemy creator, just pass this class some info to add enemies
@@ -24,7 +24,9 @@ class EnemyCreator:
         self.health = health
         self.ap = ap
         info = (name + ', ' + str(health) + ', ' + str(ap))
-        npc.append(info)
+        npc_info.append(info)
+        npc_list.append(self)
+        npc_list.append(self.name)
 
 
 # class to build the player character. Will be used to store starting class info and current player info
@@ -37,21 +39,24 @@ class PlayerCharacter:
         self.health = health
         self.ap = ap
         info = (name + ', ' + str(health) + ', ' + str(ap))
-        npc.append(info)
+        npc_info.append(info)
 
 
 # defines all of the attacks
 def attack(enemy):
-    enemy.health = enemy.health - playerChar.ap
-    if enemy.health > 0:
-        playerChar.health = playerChar.health - enemy.ap
-        return ('You attacked ' + enemy.name + '. ' + str(enemy.health) + ' life remaining. \n'
-                + enemy.name + ' attacks back! You take ' + str(enemy.ap) + ' damage. You have ' + str(playerChar.health)
-                + ' remaining!')
-    if enemy.health <= 0:
-        return enemy.name + ' has been defeated!'
-    if playerChar.health <= 0:
-        return 'You died idiot.'
+    for thing in npc_list:
+        if str(enemy) in str(thing):
+            enemy = (npc_list[npc_list.index(thing) - 1])
+            enemy.health = enemy.health - playerChar.ap
+            if enemy.health > 0:
+                playerChar.health = playerChar.health - enemy.ap
+                return ('You attacked ' + enemy.name + '. ' + str(enemy.health) + ' life remaining. \n'
+                        + enemy.name + ' attacks back! You take ' + str(enemy.ap) + ' damage. You have ' + str(playerChar.health)
+                        + ' remaining!')
+            if enemy.health <= 0:
+                return enemy.name + ' has been defeated!'
+            if playerChar.health <= 0:
+                return 'You died idiot.'
 
 
 # current list of characters that have been passed to the creator
@@ -63,7 +68,7 @@ playerChar = PlayerCharacter('Jimbo', 'playerChar', 500, 50)
 
 # defines the current information on npcs, and player
 def getinfo(character):
-    for thing in npc:
+    for thing in npc_info:
         print(thing)
         print(character)
         if character in thing:
@@ -83,20 +88,12 @@ async def on_message(message):
     print(message.content)
     if message.author != client.user:
         if 'test' in message.content.lower():
-            print(npc)
+            print(npc_info)
+            print(npc_list)
         if '!attack' in message.content.lower():
-            if 'skeleton' in message.content.lower():
-                await message.channel.send(
-                    attack(skeleton)
-                )
-            if 'soldier' in message.content.lower():
-                await message.channel.send(
-                    attack(soldier)
-                )
-            if 'boss' in message.content.lower():
-                await message.channel.send(
-                    attack(boss)
-                )
+            print(message.content[8::])
+            await message.channel.send(
+                attack(message.content[8::]))
         if '!info' in message.content.lower():
             await message.channel.send(
                 getinfo(message.content[6::]))
